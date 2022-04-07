@@ -45,11 +45,7 @@
             >
           </div>
           <div v-if="rooms.length != 0">
-            <div
-              v-for="room in rooms"
-              :key="room.id"
-              class="flex flex-col gap-2 p-3"
-            >
+            <div v-for="room in rooms" :key="room.id" class="flex flex-col">
               <Room :room="room" />
             </div>
           </div>
@@ -57,7 +53,7 @@
       </ui-drawer>
       <!-- App content -->
       <div class="demo-app-content w-full h-full p-2">
-        <router-view />
+        <router-view :key="$route.params.id" />
       </div>
     </div>
   </div>
@@ -70,6 +66,7 @@ import Room from "../components/Room.vue";
 import UserInfoDialog from "../components/UserInfoDialog.vue";
 import { RoomModel } from "../types/room.model";
 import JoinRoomDialog from "../components/JoinRoomDialog.vue";
+import { Events } from "../types/events";
 
 @Options({
   components: { Room, UserInfoDialog, JoinRoomDialog },
@@ -83,12 +80,24 @@ export default class MainView extends Vue {
   onChange(change: Array<RoomModel>) {
     this.rooms = change;
   }
-  async created() {
+  async subscribeRoom() {
     this.subscribe = await this.$sbs.observeRooms(this.onChange);
+  }
+  unSubscribeRoom() {
+    this.subscribe?.unsubscribe();
+  }
+  async created() {
+    await this.subscribeRoom();
+  }
+  mounted() {
+    this.$eventbus.on(Events.REFRESH_ROOMS, (_) => {
+      this.unSubscribeRoom();
+      this.subscribeRoom();
+    });
   }
   unmounted() {
     console.debug("Unsubcribe");
-    this.subscribe?.unsubscribe();
+    this.unSubscribeRoom();
   }
   singOut() {
     this.$sbs.singOut();

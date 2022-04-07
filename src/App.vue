@@ -27,8 +27,9 @@ export default class App extends Vue {
   async updaterCheck() {
     try {
       const { manifest } = await checkUpdate();
+      console.log(manifest);
       this.manifest = manifest ?? null;
-      // this.openUpdater = true;
+      this.openUpdater = true;
     } catch (error) {
       console.error(error);
     }

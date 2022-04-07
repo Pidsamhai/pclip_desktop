@@ -49,6 +49,7 @@ import { MessageModel } from "../types/message.model";
 import MessageBuble from "../components/MessageBuble.vue";
 import { MessageEncrypter } from "../utils/message-encrypter";
 import { RoomModel } from "../types/room.model";
+import { RoomService } from "../services/room.service";
 
 @Options({
   components: { RoomSettingDialog, MessageBuble },
@@ -59,6 +60,7 @@ export default class RoomVue extends Vue {
   subscribe?: RealtimeSubscription;
   messages: Array<MessageModel> = [];
   encrypter?: MessageEncrypter;
+  roomService: RoomService = new RoomService(this.room?.id!);
   messageInput = "";
   declare $refs: {
     conversations: HTMLDivElement;
@@ -80,7 +82,7 @@ export default class RoomVue extends Vue {
     }
   }
   sendMessage() {
-    this.$roomService.sendMessage(
+    this.roomService.sendMessage(
       this.room!.id,
       this.messageInput,
       this.encrypter!
@@ -88,7 +90,7 @@ export default class RoomVue extends Vue {
     this.messageInput = "";
   }
   deleteMessage(id: string) {
-    this.$roomService.deleteMessage(id);
+    this.roomService.deleteMessage(id);
   }
   created() {
     this.room = this.$route.params as unknown as RoomModel;
@@ -98,7 +100,7 @@ export default class RoomVue extends Vue {
   }
   async mounted() {
     this.$refs.conversations.scrollTop = this.$refs.conversations.scrollHeight;
-    this.subscribe = await this.$roomService.messageObserver(
+    this.subscribe = await this.roomService.messageObserver(
       this.room!.id,
       this.encrypter!,
       this.onChange

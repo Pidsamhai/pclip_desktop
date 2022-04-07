@@ -1,11 +1,11 @@
-import { RealtimeSubscription, SupabaseClient } from "@supabase/supabase-js";
+import { RealtimeSubscription } from "@supabase/supabase-js";
 import { PostgrestFilterBuilder } from "@supabase/postgrest-js";
-import { SupabaseQueryBuilder } from "@supabase/supabase-js/dist/main/lib/SupabaseQueryBuilder";
+import { SupabaseQueryBuilder } from "@supabase/supabase-js/dist/module/lib/SupabaseQueryBuilder";
 
 export async function observeWrapper<T>(
   init: PostgrestFilterBuilder<any>,
   from: SupabaseQueryBuilder<any>,
-  callback: (change: Array<T>) => void,
+  callback: ObserveCallBack<T>,
   diff: (n: T, old: any) => boolean,
   compute?: (data: T) => T
 ): Promise<RealtimeSubscription> {
@@ -42,3 +42,5 @@ export async function observeWrapper<T>(
     })
     .subscribe();
 }
+
+export type ObserveCallBack<T> = (change: Array<T>) => void;

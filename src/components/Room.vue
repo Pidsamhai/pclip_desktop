@@ -8,17 +8,11 @@
       <!-- <NavLink :active="isActive" :href="href" @click="navigate">
         {{ route.fullPath }}
       </NavLink> -->
-      <ui-card
-        class="room"
-        :class="{ active: isActive }"
-        v-ripple
-        v-shadow="2"
-        @click="navigate"
-      >
+      <ui-card class="room" :class="{ active: isActive }" @click="navigate">
         <ui-card-content>
           <div class="p-3">
-            <h1 :class="$tt('headline6')">{{ room.name }}</h1>
-            <h1 :class="$tt('body2')">-- sample --</h1>
+            <h1 :class="$tt('caption')">{{ room.name }}</h1>
+            <h1 :class="$tt('subtitle2')">-- sample --</h1>
           </div>
         </ui-card-content>
       </ui-card>
@@ -45,7 +39,8 @@ export default class Room extends Vue.with(Props) {
 @use "@material/theme" as color;
 .room {
   &.active {
-    border-left: solid 3px color.$primary !important;
+    // border-left: solid 3px color.$primary !important;
+    background-color: #f0f2f5;
   }
 }
 </style>

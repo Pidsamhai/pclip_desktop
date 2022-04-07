@@ -9,7 +9,8 @@ import { STORAGE_KEY } from "@supabase/gotrue-js/src/lib/constants";
 import { useAuthStore } from "../store/authStore";
 import { RoomModel } from "../types/room.model";
 import { MessageModel } from "../types/message.model";
-import { observeWrapper } from "../utils/realtime-wrapper";
+import { ObserveCallBack, observeWrapper } from "../utils/realtime-wrapper";
+import { MemberModel } from "../types/member.model";
 
 export class SupabaseServices {
   private client: SupabaseClient;
@@ -74,17 +75,20 @@ export class SupabaseServices {
     return result.data?.map((e) => e as RoomModel) ?? [];
   }
 
-  async getRoom(id: String): Promise<RoomModel> {
-    const reslut = await this.client
-      .from("room")
-      .select()
-      .eq("id", id)
-      .single();
-    return reslut.data as RoomModel;
+  async observeMembers(
+    room_id: string,
+    callback: ObserveCallBack<MemberModel>
+  ): Promise<RealtimeSubscription> {
+    return observeWrapper<MemberModel>(
+      this.client.from("room_member").select().eq("room_id", room_id),
+      this.client.from(`room_member?room_id.eq=${room_id}`),
+      callback,
+      (n, old) => n.member_id === old.member_id
+    );
   }
 
   async observeRooms(
-    callback: (change: Array<RoomModel>) => void
+    callback: ObserveCallBack<RoomModel>
   ): Promise<RealtimeSubscription> {
     return observeWrapper<RoomModel>(
       this.client.from("room").select(),
